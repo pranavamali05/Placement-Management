@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Placement Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+
+<body class="flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-slate-900 text-white flex flex-col transition-all duration-300">
+        <div class="h-20 flex items-center px-8 border-b border-slate-800">
+            <i class="fas fa-rocket text-indigo-500 text-2xl mr-3"></i>
+            <span class="text-xl font-bold tracking-wide">Engine.</span>
+        </div>
+
+        <nav class="flex-1 py-6 px-4 space-y-2">
+            <button onclick="switchTab('directory')" id="nav-directory"
+                class="w-full flex items-center px-4 py-3 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-900/20 transition-all">
+                <i class="fas fa-users w-6 text-left"></i>
+                <span class="font-medium">Student Directory</span>
+            </button>
+
+            <button onclick="switchTab('shortlist')" id="nav-shortlist"
+                class="w-full flex items-center px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all">
+                <i class="fas fa-filter w-6 text-left"></i>
+                <span class="font-medium">Shortlist Engine</span>
+            </button>
+
+        </nav>
+
+        <div class="p-4 border-t border-slate-800">
+            <button onclick="logout()"
+                class="flex items-center px-4 py-3 w-full text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-xl transition-colors">
+                <i class="fas fa-sign-out-alt w-6 text-left"></i>
+                <span class="font-medium">Log Out</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 shadow-sm z-10">
+            <h1 id="pageTitle" class="text-2xl font-bold text-slate-800">Student Directory</h1>
+            <div class="flex items-center space-x-4">
+                <div
+                    class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold">
+                    A
+                </div>
+                <span class="font-medium text-slate-700">Admin</span>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8">
+
+            <div id="section-stats" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 block">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div
+                        class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-slate-500 font-medium">Total Registered</p>
+                        <p class="text-2xl font-bold text-slate-800" id="totalStudents">--</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="section-filters" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm mb-8 hidden">
+                <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+                    <i class="fas fa-filter text-indigo-500 mr-2"></i> Dynamic Shortlist Engine
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Minimum CGPA</label>
+                        <input type="number" step="0.1" id="filterCGPA" placeholder="e.g. 7.5"
+                            class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Minimum 10th %</label>
+                        <input type="number" step="0.1" id="filter10th" placeholder="e.g. 80"
+                            class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1">Minimum 12th/Dip %</label>
+                        <input type="number" step="0.1" id="filter12th" placeholder="e.g. 75"
+                            class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div class="flex space-y-2 md:space-y-0 md:space-x-2 flex-col md:flex-row">
+                        <button onclick="applyFilters()"
+                            class="flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2 rounded-lg transition-colors border border-indigo-200">
+                            Apply
+                        </button>
+                        <button onclick="resetFilters()"
+                            class="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-600 font-semibold py-2 rounded-lg transition-colors border border-slate-200">
+                            Clear
+                        </button>
+                        <button onclick="exportToCSV()"
+                            class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-lg transition-colors shadow-sm">
+                            <i class="fas fa-file-csv mr-1"></i> Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="section-table"
+                class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden block">
+                <div class="p-6 border-b border-slate-200 flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-slate-800" id="tableTitle">All Students</h2>
+                    <button id="addStudentBtn" onclick="toggleModal('addStudentModal', true)"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm flex items-center space-x-2">
+                        <i class="fas fa-plus"></i>
+                        <span>Add Student</span>
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-500 text-sm border-b border-slate-200">
+                                <th class="px-6 py-4 font-semibold">PRN</th>
+                                <th class="px-6 py-4 font-semibold">Name</th>
+                                <th class="px-6 py-4 font-semibold">CGPA</th>
+                                <th class="px-6 py-4 font-semibold">10th %</th>
+                                <th class="px-6 py-4 font-semibold">12th %</th>
+                                <th class="px-6 py-4 font-semibold text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody" class="divide-y divide-slate-100 text-sm">
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-slate-500">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i> Loading student data...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="addStudentModal"
+            class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 transition-opacity">
+            <div
+                class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-8 transform scale-95 transition-transform duration-300 relative">
+                <button onclick="toggleModal('addStudentModal', false)"
+                    class="absolute top-6 right-6 text-slate-400 hover:text-slate-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+                <h2 class="text-2xl font-bold text-slate-800 mb-6">Register New Student</h2>
+                <form id="addStudentForm" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Full Name</label>
+                            <input type="text" id="newName" required placeholder="e.g. Rahul Sharma"
+                                class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">PRN Number</label>
+                            <input type="text" id="newPRN" required placeholder="e.g. PRN2026002"
+                                class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Registration No.</label>
+                            <input type="text" id="newRegNo" required placeholder="e.g. REG99123"
+                                class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Temporary Password</label>
+                            <input type="password" id="newPassword" required placeholder="For first login"
+                                class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                        </div>
+                    </div>
+                    <div class="pt-6 flex justify-end space-x-3">
+                        <button type="button" onclick="toggleModal('addStudentModal', false)"
+                            class="px-6 py-2.5 rounded-xl font-medium text-slate-600 hover:bg-slate-100 transition-colors">Cancel</button>
+                        <button type="submit"
+                            class="px-6 py-2.5 rounded-xl font-medium bg-indigo-600 hover:bg-indigo-700 text-white transition-colors shadow-lg shadow-indigo-200">Create
+                            Account Shell</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let allStudents = [];
+
+        // --- NEW: TAB SWITCHING LOGIC ---
+        // --- NEW: TAB SWITCHING LOGIC ---
+        function switchTab(tabName) {
+            // 1. Reset all sidebar buttons to inactive styles
+            const navItems = ['directory', 'shortlist'];
+            navItems.forEach(item => {
+                const btn = document.getElementById(`nav-${item}`);
+                btn.className = "w-full flex items-center px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all";
+            });
+
+            // 2. Set the clicked button to active style
+            const activeBtn = document.getElementById(`nav-${tabName}`);
+            activeBtn.className = "w-full flex items-center px-4 py-3 bg-indigo-600 text-white rounded-xl shadow-lg shadow-indigo-900/20 transition-all";
+
+            // 3. Hide all sections first
+            document.getElementById('section-stats').classList.add('hidden');
+            document.getElementById('section-stats').classList.remove('block');
+            document.getElementById('section-filters').classList.add('hidden');
+            document.getElementById('section-filters').classList.remove('block');
+            document.getElementById('section-table').classList.add('hidden');
+            document.getElementById('section-table').classList.remove('block');
+
+            // 4. Show the correct sections based on the tab
+            const pageTitle = document.getElementById('pageTitle');
+            const tableTitle = document.getElementById('tableTitle');
+            const addBtn = document.getElementById('addStudentBtn'); // Grab the button
+
+            if (tabName === 'directory') {
+                pageTitle.textContent = "Student Directory";
+                tableTitle.textContent = "All Students";
+                document.getElementById('section-stats').classList.replace('hidden', 'block');
+                document.getElementById('section-table').classList.replace('hidden', 'block');
+                addBtn.classList.remove('hidden'); // SHOW button
+                resetFilters(); // Reset table to show everyone
+            }
+            else if (tabName === 'shortlist') {
+                pageTitle.textContent = "Shortlist Engine";
+                tableTitle.textContent = "Filtered Results";
+                document.getElementById('section-filters').classList.replace('hidden', 'block');
+                document.getElementById('section-table').classList.replace('hidden', 'block');
+                addBtn.classList.add('hidden'); // HIDE button
+            }
+
+        }
+
+        // Logout
+        function logout() {
+            window.location.href = 'index.html';
+        }
+
+        // Fetch Data on Load
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/students');
+                allStudents = await response.json();
+                document.getElementById('totalStudents').textContent = allStudents.length;
+                renderTable(allStudents);
+            } catch (error) {
+                document.getElementById('studentTableBody').innerHTML = `
+                    <tr><td colspan="6" class="px-6 py-8 text-center text-red-500 font-medium">Error connecting to database. Is the Node server running?</td></tr>`;
+            }
+        });
+
+        // Render Table
+        function renderTable(dataArray) {
+            const tableBody = document.getElementById('studentTableBody');
+            tableBody.innerHTML = '';
+
+            if (dataArray.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-slate-500 font-medium">No students match this criteria.</td></tr>`;
+                return;
+            }
+
+            dataArray.forEach(student => {
+                const row = `
+                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td class="px-6 py-4 text-slate-700 font-medium">${student.prn_number}</td>
+                        <td class="px-6 py-4 text-slate-900 font-bold">${student.name || '<span class="text-slate-400 italic">Pending...</span>'}</td>
+                        <td class="px-6 py-4">
+                            <span class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-md font-bold shadow-sm">
+                                ${student.cgpa || '0.0'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-slate-600">${student.marks_10th || 0}%</td>
+                        <td class="px-6 py-4 text-slate-600">${student.marks_12th_diploma || 0}%</td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="deleteStudent('${student.prn_number}')" class="text-slate-400 hover:text-red-500 transition-colors" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        // Filters
+        function applyFilters() {
+            const minCGPA = parseFloat(document.getElementById('filterCGPA').value) || 0;
+            const min10th = parseFloat(document.getElementById('filter10th').value) || 0;
+            const min12th = parseFloat(document.getElementById('filter12th').value) || 0;
+
+            const filteredStudents = allStudents.filter(student => {
+                const cgpa = parseFloat(student.cgpa) || 0;
+                const marks10th = parseFloat(student.marks_10th) || 0;
+                const marks12th = parseFloat(student.marks_12th_diploma) || 0;
+
+                return cgpa >= minCGPA && marks10th >= min10th && marks12th >= min12th;
+            });
+
+            renderTable(filteredStudents);
+        }
+
+        function resetFilters() {
+            document.getElementById('filterCGPA').value = '';
+            document.getElementById('filter10th').value = '';
+            document.getElementById('filter12th').value = '';
+            renderTable(allStudents);
+        }
+
+        // Modal
+        function toggleModal(modalID, show) {
+            const modal = document.getElementById(modalID);
+            const modalContent = modal.querySelector('div');
+
+            if (show) {
+                modal.classList.remove('hidden');
+                setTimeout(() => modalContent.classList.remove('scale-95'), 10);
+            } else {
+                modalContent.classList.add('scale-95');
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            }
+        }
+
+        // Add Student Form
+        document.getElementById('addStudentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const studentData = {
+                name: document.getElementById('newName').value,
+                prn: document.getElementById('newPRN').value,
+                regNo: document.getElementById('newRegNo').value,
+                password: document.getElementById('newPassword').value
+            };
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/students', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(studentData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message);
+                    toggleModal('addStudentModal', false);
+                    e.target.reset();
+                    location.reload();
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                alert("Server connection failed.");
+            } finally {
+                submitBtn.innerHTML = 'Create Account Shell';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Delete Student
+        async function deleteStudent(prn) {
+            const isConfirmed = confirm(`Are you sure you want to completely remove the student with PRN: ${prn}?`);
+            if (!isConfirmed) return;
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/students/${prn}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    const result = await response.json();
+                    alert(result.error);
+                }
+            } catch (error) {
+                alert("Server connection failed. Could not delete student.");
+            }
+        }
+        // --- EXPORT TO CSV LOGIC ---
+        // --- CSV EXPORT: PRN, NAME, REG, MOBILE, EMAIL ---
+        function exportToCSV() {
+            // 1. Get current filter values to ensure we only export what is on screen
+            const minCGPA = parseFloat(document.getElementById('filterCGPA').value) || 0;
+            const min10th = parseFloat(document.getElementById('filter10th').value) || 0;
+            const min12th = parseFloat(document.getElementById('filter12th').value) || 0;
+
+            // 2. Filter the data
+            const filteredData = allStudents.filter(student => {
+                const cgpa = parseFloat(student.cgpa) || 0;
+                const marks10th = parseFloat(student.marks_10th) || 0;
+                const marks12th = parseFloat(student.marks_12th_diploma) || 0;
+                return cgpa >= minCGPA && marks10th >= min10th && marks12th >= min12th;
+            });
+
+            if (filteredData.length === 0) {
+                alert("No students found matching these filters.");
+                return;
+            }
+
+            // 3. Define Headers
+            const headers = ["PRN", "Full Name", "Registration No", "Mobile", "Email"];
+            let csvContent = headers.join(",") + "\n";
+
+            // 4. Build Rows
+            filteredData.forEach(s => {
+                const row = [
+                    `"${s.prn_number || ''}"`,
+                    `"${s.name || 'Pending'}"`,
+                    `"${s.registration_number || ''}"`,
+                    `"${s.mobile || 'Not Updated'}"`,
+                    `"${s.email || 'Not Updated'}"`
+                ];
+                csvContent += row.join(",") + "\n";
+            });
+
+            // 5. Create Download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Shortlisted_Contacts_${new Date().toLocaleDateString()}.csv`);
+            link.style.visibility = 'hidden';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Placement Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden bg-slate-50">
+
+    <div class="hidden lg:flex lg:w-1/2 bg-slate-900 flex-col justify-center items-center text-white p-12 relative overflow-hidden">
+        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+
+        <div class="z-10 text-center max-w-md">
+            <i class="fas fa-rocket text-indigo-500 text-6xl mb-8 block"></i>
+            <h1 class="text-5xl font-bold mb-6 tracking-tight">Training & Placement Cell<br><span class="text-indigo-400">PICT</span></h1>
+        </div>
+    </div>
+
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12">
+        <div class="w-full max-w-md bg-white p-8 sm:p-10 rounded-3xl shadow-xl border border-slate-100 relative z-10">
+            <div class="mb-8 text-center">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">Welcome Back</h2>
+                <p class="text-slate-500 text-sm">Please enter your credentials to sign in.</p>
+            </div>
+
+            <form id="loginForm" class="space-y-6">
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-slate-700">Account Type</label>
+                    <div class="relative">
+                        <select id="role" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-slate-700 appearance-none font-medium">
+                            <option value="student">Student Account</option>
+                            <option value="admin">Administrator</option>
+                        </select>
+                        <i class="fas fa-chevron-down absolute right-4 top-4 text-slate-400 pointer-events-none"></i>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-slate-700">PRN / Username</label>
+                    <input type="text" id="identifier" required placeholder="e.g. PRN2026001" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-slate-900 transition-all font-medium">
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-slate-700">Password</label>
+                    <input type="password" id="password" required placeholder="••••••••" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none text-slate-900 transition-all font-medium">
+                </div>
+
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-indigo-200 flex justify-center items-center">
+                    <span>Sign In</span>
+                    <i class="fas fa-arrow-right ml-2 text-sm"></i>
+                </button>
+
+                <div id="messageBox" class="hidden mt-4 p-4 rounded-xl text-sm font-medium text-center"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const role = document.getElementById('role').value;
+            const identifier = document.getElementById('identifier').value;
+            const password = document.getElementById('password').value;
+            const messageBox = document.getElementById('messageBox');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+
+            // UI Loading State
+            submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+            submitBtn.disabled = true;
+            messageBox.classList.add('hidden');
+
+            try {
+                const response = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role, identifier, password })
+                });
+
+                const data = await response.json();
+
+                messageBox.classList.remove('hidden');
+
+                if (response.ok) {
+                    messageBox.textContent = `Welcome! Redirecting...`;
+                    messageBox.className = 'mt-4 p-4 rounded-xl text-sm font-bold text-center bg-green-50 text-green-600 block';
+                    
+                    // ROUTING LOGIC based on role
+                    if (role === 'admin') {
+                        setTimeout(() => window.location.href = 'admin-dashboard.html', 800);
+                    } else if (role === 'student') {
+                        // Crucial: Save the PRN so the student dashboard knows who to load
+                        localStorage.setItem('studentPRN', identifier);
+                        setTimeout(() => window.location.href = 'student-dashboard.html', 800);
+                    }
+                } else {
+                    messageBox.textContent = data.error;
+                    messageBox.className = 'mt-4 p-4 rounded-xl text-sm font-bold text-center bg-red-50 text-red-600 block';
+                    submitBtn.innerHTML = '<span>Sign In</span><i class="fas fa-arrow-right ml-2 text-sm"></i>';
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                messageBox.textContent = "Server connection failed. Is Node running?";
+                messageBox.className = 'mt-4 p-4 rounded-xl text-sm font-bold text-center bg-red-50 text-red-600 block';
+                submitBtn.innerHTML = '<span>Sign In</span><i class="fas fa-arrow-right ml-2 text-sm"></i>';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
