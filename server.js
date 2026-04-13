@@ -95,7 +95,7 @@ app.post('/api/students', async (req, res) => {
                 if(err.code === 'ER_DUP_ENTRY') return res.status(400).json({ error: "PRN or Reg No already exists." });
                 return res.status(500).json({ error: "Database error." });
             }
-            res.status(201).json({ message: "Student shell created!" });
+            res.status(201).json({ message: "Student account created!" });
         });
     } catch (e) { res.status(500).json({ error: "Encryption error." }); }
 });
