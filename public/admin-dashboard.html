@@ -266,7 +266,7 @@
         // Fetch Data on Load
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/students');
+                const response = await fetch(`http://${window.location.hostname}:3000/api/students`);
                 allStudents = await response.json();
                 document.getElementById('totalStudents').textContent = allStudents.length;
                 renderTable(allStudents);
@@ -363,7 +363,7 @@
             submitBtn.disabled = true;
 
             try {
-                const response = await fetch('http://localhost:3000/api/students', {
+                const response = await fetch(`http://${window.location.hostname}:3000/api/students`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(studentData)
@@ -393,7 +393,7 @@
             if (!isConfirmed) return;
 
             try {
-                const response = await fetch(`http://localhost:3000/api/students/${prn}`, {
+                const response = await fetch(`http://${window.location.hostname}:3000/api/students/${prn}`, {
                     method: 'DELETE'
                 });
 

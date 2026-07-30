@@ -18,8 +18,7 @@
         <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
 
         <div class="z-10 text-center max-w-md">
-            <i class="fas fa-rocket text-indigo-500 text-6xl mb-8 block"></i>
-            <h1 class="text-5xl font-bold mb-6 tracking-tight">Training & Placement Cell<br><span class="text-indigo-400">PICT</span></h1>
+            <h1 class="text-5xl font-bold mb-6 tracking-tight">Training & Placement Cell<br>w</h1>
         </div>
     </div>
 
@@ -78,7 +77,7 @@
             messageBox.classList.add('hidden');
 
             try {
-                const response = await fetch('http://localhost:3000/api/login', {
+                const response = await fetch(`http://${window.location.hostname}:3000/api/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ role, identifier, password })
